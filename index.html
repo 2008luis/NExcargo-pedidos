@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nexcargo Hub</title>
+  <meta name="description" content="Plataforma interna de Nexcargo: pedidos y guías, contabilidad, marketing, diseño y asistentes.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- =====================================================================
+     MODO 1: PLATAFORMA INTERNA
+====================================================================== -->
+<div id="hub" class="hub">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar" id="sidebar" aria-label="Navegación principal">
+    <div class="sidebar-brand">
+      <img src="assets/img/Logo_Nexcargo_Definitivo.svg" alt="Nexcargo" class="logo-blanco">
+      <span class="sidebar-tag">Nexcargo Hub</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <span class="nav-section">Operación</span>
+      <button class="nav-item" data-view="dashboard"><i class="bi bi-grid-1x2-fill"></i><span>Vista General</span></button>
+      <button class="nav-item" data-view="pedidos" data-accent="verde"><i class="bi bi-truck-front-fill"></i><span>Pedidos y Guías</span><b class="nav-badge" id="navBadgePedidos">0</b></button>
+      <button class="nav-item" data-view="contabilidad" data-accent="azul"><i class="bi bi-safe2-fill"></i><span>Contabilidad (Admin)</span><i class="bi bi-lock-fill nav-lock" id="navLock"></i></button>
+
+      <span class="nav-section">Asistentes</span>
+      <button class="nav-item" data-view="copy" data-accent="azul"><i class="bi bi-pen-fill"></i><span>Estrategia y Copy</span><small>01</small></button>
+      <button class="nav-item" data-view="diseno" data-accent="verde"><i class="bi bi-palette-fill"></i><span>Diseño y Prompts</span><small>02</small></button>
+      <button class="nav-item" data-view="comercial" data-accent="violeta"><i class="bi bi-chat-square-text-fill"></i><span>Comercial y Objeciones</span><small>03</small></button>
+
+      <span class="nav-section">Sistema</span>
+      <button class="nav-item" data-view="config"><i class="bi bi-gear-fill"></i><span>Configuración</span></button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="estado-ia" id="estadoIA"><span class="punto"></span><span class="texto">Modo offline (plantillas)</span></div>
+      <button class="btn btn-sidebar-portal w-100" data-modo-btn="portal"><i class="bi bi-search"></i> Portal de rastreo</button>
+    </div>
+  </aside>
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+  <!-- ===== WORKSPACE ===== -->
+  <main class="workspace">
+    <header class="topbar">
+      <button class="btn btn-icon d-lg-none" id="btnMenu" aria-label="Abrir menú"><i class="bi bi-list"></i></button>
+      <img src="assets/img/nexcargo-sin fondo.png" alt="Nexcargo" class="logo-color-topbar d-lg-none">
+      <div class="topbar-titulos">
+        <h1 id="vistaTitulo">Vista General</h1>
+        <p id="vistaSubtitulo"></p>
+      </div>
+      <div class="modo-switch" role="group" aria-label="Modo de visualización">
+        <button class="active" data-modo-btn="hub"><i class="bi bi-speedometer2"></i><span>Plataforma interna</span></button>
+        <button data-modo-btn="portal"><i class="bi bi-globe2"></i><span>Portal del cliente</span></button>
+      </div>
+    </header>
+
+    <!-- ============ 1. DASHBOARD ============ -->
+    <section class="vista" id="vista-dashboard">
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-xl-3"><div class="metric-card" data-accent="verde">
+          <div class="metric-icon"><i class="bi bi-truck"></i></div>
+          <span class="metric-label">Pedidos activos</span>
+          <span class="metric-valor" id="mActivos">0</span>
+          <span class="metric-sub" id="mActivosSub">0 hacia zona rural</span>
+        </div></div>
+        <div class="col-6 col-xl-3"><div class="metric-card" data-accent="profundo">
+          <div class="metric-icon"><i class="bi bi-check2-circle"></i></div>
+          <span class="metric-label">Entregas a tiempo</span>
+          <span class="metric-valor" id="mATiempo">0</span>
+          <span class="metric-sub" id="mATiempoSub">Sin entregas registradas</span>
+        </div></div>
+        <div class="col-6 col-xl-3"><div class="metric-card" data-accent="violeta">
+          <div class="metric-icon"><i class="bi bi-patch-exclamation-fill"></i></div>
+          <span class="metric-label">Alertas de garantía 10%</span>
+          <span class="metric-valor" id="mAlertas">0</span>
+          <span class="metric-sub" id="mAlertasSub">Sin retrasos</span>
+        </div></div>
+        <div class="col-6 col-xl-3"><div class="metric-card" data-accent="azul">
+          <div class="metric-icon"><i class="bi bi-pen"></i></div>
+          <span class="metric-label">Copys generados</span>
+          <span class="metric-valor" id="mCopys">0</span>
+          <span class="metric-sub" id="mCopysSub">0 briefs de diseño</span>
+        </div></div>
+      </div>
+
+      <div class="row g-3 mb-4">
+        <div class="col-lg-5">
+          <div class="panel h-100" data-accent="verde">
+            <div class="panel-header"><h3><i class="bi bi-upc-scan"></i> Buscar guía</h3></div>
+            <form id="formDashGuia" class="input-group">
+              <input class="form-control guia-input" id="dashGuia" placeholder="NX-2026-001 o nombre de tienda" autocomplete="off">
+              <button class="btn btn-verde" type="submit"><i class="bi bi-search"></i> Buscar</button>
+            </form>
+            <div id="dashGuiaResultado" class="mt-3"></div>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="panel h-100">
+            <div class="panel-header"><h3><i class="bi bi-activity"></i> Actividad reciente</h3></div>
+            <ul class="actividad-lista" id="actividadLista"></ul>
+          </div>
+        </div>
+        <div class="col-lg-3">
+          <div class="panel h-100" data-accent="violeta">
+            <div class="panel-header"><h3><i class="bi bi-patch-exclamation-fill"></i> Garantías por aplicar</h3></div>
+            <div id="alertasGarantia"></div>
+          </div>
+        </div>
+      </div>
+
+      <h2 class="seccion-titulo">Accesos rápidos</h2>
+      <div class="row g-3">
+        <div class="col-md-6 col-xl-3"><article class="asistente-card" data-accent="verde">
+          <span class="asistente-num">Operación</span><h3><i class="bi bi-truck-front-fill"></i> Pedidos y guías</h3>
+          <p>Registro directo, guía automática, etapas de entrega y semáforo de garantía.</p>
+          <button class="btn btn-accent" data-goto="pedidos">Abrir <i class="bi bi-arrow-right"></i></button>
+        </article></div>
+        <div class="col-md-6 col-xl-3"><article class="asistente-card" data-accent="azul">
+          <span class="asistente-num">Asistente 01</span><h3><i class="bi bi-pen-fill"></i> Estrategia y copy</h3>
+          <p>3 variaciones (Dolor, Cobertura, Garantía) con PAS o AIDA para cada canal.</p>
+          <button class="btn btn-accent" data-goto="copy">Abrir <i class="bi bi-arrow-right"></i></button>
+        </article></div>
+        <div class="col-md-6 col-xl-3"><article class="asistente-card" data-accent="verde">
+          <span class="asistente-num">Asistente 02</span><h3><i class="bi bi-palette-fill"></i> Diseño y prompts</h3>
+          <p>Lienzo con regla de 3 colores, zona segura y prompts en inglés.</p>
+          <button class="btn btn-accent" data-goto="diseno">Abrir <i class="bi bi-arrow-right"></i></button>
+        </article></div>
+        <div class="col-md-6 col-xl-3"><article class="asistente-card" data-accent="violeta">
+          <span class="asistente-num">Asistente 03</span><h3><i class="bi bi-chat-square-text-fill"></i> Comercial</h3>
+          <p>Respuestas oficiales a objeciones, personalizadas con tienda y guía.</p>
+          <button class="btn btn-accent" data-goto="comercial">Abrir <i class="bi bi-arrow-right"></i></button>
+        </article></div>
+      </div>
+    </section>
+
+    <!-- ============ 2. PEDIDOS Y GUÍAS ============ -->
+    <section class="vista" id="vista-pedidos" data-accent="verde">
+      <div class="row g-3">
+        <div class="col-xl-4">
+          <div class="panel panel-accent">
+            <div class="panel-header"><h3><i class="bi bi-plus-circle-fill"></i> Nuevo pedido</h3><span class="contador">Guía automática</span></div>
+            <form id="formPedido" novalidate>
+              <div class="row g-2">
+                <div class="col-12"><label class="campo-label" for="pedTienda">Nombre y tienda *</label>
+                  <input class="form-control" id="pedTienda" name="tienda" required placeholder="Carlos · Mueblería Central"></div>
+                <div class="col-md-6"><label class="campo-label" for="pedEmail">Correo electrónico *</label>
+                  <input class="form-control" id="pedEmail" name="email" type="email" required placeholder="compras@tienda.co"></div>
+                <div class="col-md-6"><label class="campo-label" for="pedWhatsapp">WhatsApp <span class="opcional">(opcional)</span></label>
+                  <input class="form-control" id="pedWhatsapp" name="whatsapp" type="tel" placeholder="310 123 4567"></div>
+                <div class="col-md-6"><label class="campo-label" for="pedOrigen">Origen *</label>
+                  <input class="form-control" id="pedOrigen" name="origen" required placeholder="Bogotá"></div>
+                <div class="col-md-6"><label class="campo-label" for="pedDestino">Destino *</label>
+                  <input class="form-control" id="pedDestino" name="destino" required placeholder="San Gil, vereda El Encanto"></div>
+                <div class="col-12"><label class="campo-label">Zona de destino *</label>
+                  <div class="segmentado" id="pedZona">
+                    <button type="button" data-value="Urbano">Urbano <small>Casco urbano</small></button>
+                    <button type="button" data-value="Rural">Rural <small>Vereda o corregimiento</small></button>
+                  </div></div>
+                <div class="col-12"><label class="campo-label" for="pedMercancia">Mercancía y cantidad *</label>
+                  <input class="form-control" id="pedMercancia" name="mercancia" required placeholder="1 juego de sala + 2 colchones"></div>
+                <div class="col-md-6"><label class="campo-label" for="pedMedidas">Medidas o peso</label>
+                  <input class="form-control" id="pedMedidas" name="medidas" placeholder="2.10 x 0.90 m · 140 kg"></div>
+                <div class="col-md-6"><label class="campo-label" for="pedFlete">Valor del flete (COP) *</label>
+                  <div class="input-group"><span class="input-group-text">$</span>
+                  <input class="form-control cifra" id="pedFlete" name="valorFlete" type="number" min="1000" step="1000" required placeholder="480000"></div></div>
+                <div class="col-12"><label class="campo-label" for="pedFecha">Fecha pactada de entrega *</label>
+                  <input class="form-control" id="pedFecha" name="fechaPactada" type="date" required>
+                  <small class="ayuda">Si la entrega llega después de esta fecha, se aplica el 10% de descuento en el flete (excepto paros).</small></div>
+                <div class="col-12 mt-3"><button type="submit" class="btn btn-verde w-100 py-2"><i class="bi bi-qr-code"></i> Guardar pedido y generar guía</button></div>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="col-xl-8">
+          <!-- Detalle del pedido seleccionado -->
+          <div class="panel mb-3" id="detallePedido"></div>
+
+          <!-- Tabla de pedidos -->
+          <div class="panel">
+            <div class="crm-toolbar">
+              <div>
+                <h3 class="m-0"><i class="bi bi-card-checklist"></i> Pedidos registrados</h3>
+                <small class="text-secundario" id="pedidosResumen"></small>
+              </div>
+              <div class="d-flex flex-wrap gap-2">
+                <input type="search" class="form-control form-control-sm w-auto" id="pedidosBuscar" placeholder="Buscar guía o tienda" aria-label="Buscar pedidos">
+                <button class="btn btn-sm btn-azul" id="btnCSVPedidos"><i class="bi bi-filetype-csv"></i> Descargar Base Local (.CSV)</button>
+                <button class="btn btn-sm btn-verde" id="btnSheetsPedidos"><i class="bi bi-file-earmark-spreadsheet"></i> Abrir Google Sheets</button>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table class="table crm-tabla align-middle">
+                <thead><tr><th>Guía</th><th>Tienda</th><th>Ruta</th><th>Etapa</th><th>Garantía</th><th class="text-end">Flete</th><th></th></tr></thead>
+                <tbody id="tablaPedidos"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 3. CONTABILIDAD (PROTEGIDA) ============ -->
+    <section class="vista" id="vista-contabilidad" data-accent="azul">
+      <!-- Pantalla de bloqueo -->
+      <div class="lock-screen" id="contaLock">
+        <div class="lock-card">
+          <img src="assets/img/Logo_Nexcargo_Definitivo.svg" alt="Nexcargo" class="logo-blanco lock-logo">
+          <div class="lock-icono"><i class="bi bi-shield-lock-fill"></i></div>
+          <h2>Módulo contable protegido</h2>
+          <p>Ingresa la contraseña de administrador para ver ingresos, gastos y utilidades.</p>
+          <form id="formLock">
+            <div class="input-group">
+              <input type="password" class="form-control" id="lockPassword" placeholder="Contraseña de administrador" autocomplete="current-password" aria-label="Contraseña de administrador">
+              <button class="btn btn-verde" type="submit"><i class="bi bi-unlock-fill"></i> Desbloquear</button>
+            </div>
+            <div class="lock-error" id="lockError" role="alert"></div>
+          </form>
+          <small class="lock-nota"><i class="bi bi-info-circle"></i> La sesión se bloquea sola tras 15 minutos sin actividad o al cerrar la pestaña.</small>
+        </div>
+      </div>
+
+      <!-- Contenido contable (se llena solo al desbloquear) -->
+      <div id="contaContenido" hidden>
+        <div class="conta-toolbar">
+          <div class="d-flex flex-wrap gap-2 align-items-center">
+            <label class="small text-secundario" for="contaPeriodo">Periodo</label>
+            <select class="form-select form-select-sm w-auto" id="contaPeriodo"></select>
+          </div>
+          <div class="d-flex flex-wrap gap-2">
+            <button class="btn btn-sm btn-azul" id="btnCSVConta"><i class="bi bi-filetype-csv"></i> Descargar Libro Contable (.CSV)</button>
+            <button class="btn btn-sm btn-verde" id="btnSheetsConta"><i class="bi bi-file-earmark-spreadsheet"></i> Abrir Google Sheets Contable</button>
+            <button class="btn btn-sm btn-profundo" id="btnBloquear"><i class="bi bi-lock-fill"></i> Bloquear Sesión Contable</button>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-6 col-xl-3"><div class="metric-card" data-accent="verde">
+            <div class="metric-icon"><i class="bi bi-cash-stack"></i></div>
+            <span class="metric-label">Ingresos brutos por fletes</span>
+            <span class="metric-valor cop" id="kIngresos">$0</span>
+            <span class="metric-sub" id="kIngresosSub"></span>
+          </div></div>
+          <div class="col-6 col-xl-3"><div class="metric-card" data-accent="violeta">
+            <div class="metric-icon"><i class="bi bi-percent"></i></div>
+            <span class="metric-label">Descuentos por garantía 10%</span>
+            <span class="metric-valor cop" id="kDescuentos">$0</span>
+            <span class="metric-sub" id="kDescuentosSub"></span>
+          </div></div>
+          <div class="col-6 col-xl-3"><div class="metric-card" data-accent="profundo">
+            <div class="metric-icon"><i class="bi bi-fuel-pump-fill"></i></div>
+            <span class="metric-label">Gastos operativos flota turbo</span>
+            <span class="metric-valor cop" id="kGastos">$0</span>
+            <span class="metric-sub" id="kGastosSub"></span>
+          </div></div>
+          <div class="col-6 col-xl-3"><div class="metric-card" data-accent="azul">
+            <div class="metric-icon"><i class="bi bi-graph-up-arrow"></i></div>
+            <span class="metric-label">Utilidad neta</span>
+            <span class="metric-valor cop" id="kUtilidad">$0</span>
+            <span class="metric-sub" id="kUtilidadSub"></span>
+          </div></div>
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-xl-4">
+            <div class="panel panel-accent">
+              <div class="panel-header"><h3><i class="bi bi-journal-plus"></i> Registrar movimiento</h3></div>
+              <form id="formMovimiento" novalidate>
+                <div class="row g-2">
+                  <div class="col-12"><label class="campo-label">Tipo *</label>
+                    <div class="segmentado" id="movTipo">
+                      <button type="button" class="active" data-value="Egreso Operativo">Egreso operativo</button>
+                      <button type="button" data-value="Ingreso Adicional">Ingreso adicional</button>
+                    </div></div>
+                  <div class="col-md-6"><label class="campo-label" for="movFecha">Fecha *</label>
+                    <input class="form-control" type="date" id="movFecha" required></div>
+                  <div class="col-md-6"><label class="campo-label" for="movMonto">Monto (COP) *</label>
+                    <div class="input-group"><span class="input-group-text">$</span>
+                    <input class="form-control cifra" type="number" id="movMonto" min="100" step="100" required placeholder="185000"></div></div>
+                  <div class="col-12"><label class="campo-label" for="movCategoria">Categoría *</label>
+                    <select class="form-select" id="movCategoria" required></select></div>
+                  <div class="col-12"><label class="campo-label" for="movGuia">Guía asociada <span class="opcional">(para rentabilidad por viaje)</span></label>
+                    <select class="form-select" id="movGuia"></select></div>
+                  <div class="col-12"><label class="campo-label" for="movDescripcion">Descripción *</label>
+                    <input class="form-control" id="movDescripcion" required placeholder="Tanqueo ACPM ruta Bogotá - San Gil"></div>
+                  <div class="col-12"><label class="campo-label" for="movMetodo">Método de pago *</label>
+                    <select class="form-select" id="movMetodo">
+                      <option>Transferencia Bancolombia</option><option>Nequi / Daviplata</option><option>Efectivo Ruta</option>
+                    </select></div>
+                  <div class="col-12 mt-3"><button type="submit" class="btn btn-azul w-100"><i class="bi bi-floppy-fill"></i> Guardar movimiento</button></div>
+                </div>
+              </form>
+            </div>
+          </div>
+          <div class="col-xl-8">
+            <div class="panel h-100">
+              <div class="crm-toolbar">
+                <div><h3 class="m-0"><i class="bi bi-journal-text"></i> Libro diario</h3><small class="text-secundario" id="libroResumen"></small></div>
+                <select class="form-select form-select-sm w-auto" id="contaCategoria" aria-label="Filtrar por categoría"></select>
+              </div>
+              <div class="table-responsive libro-scroll">
+                <table class="table crm-tabla align-middle">
+                  <thead><tr><th>Fecha</th><th>Concepto</th><th>Categoría</th><th>Guía</th><th class="text-end">Monto</th><th></th></tr></thead>
+                  <tbody id="tablaLibro"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-xl-8">
+            <div class="panel">
+              <div class="panel-header"><h3><i class="bi bi-signpost-2-fill"></i> Rentabilidad por guía</h3></div>
+              <div class="table-responsive">
+                <table class="table crm-tabla align-middle">
+                  <thead><tr><th>Guía</th><th>Ruta</th><th class="text-end">Flete neto</th><th class="text-end">Gastos asociados</th><th class="text-end">Utilidad</th><th class="text-end">Margen</th></tr></thead>
+                  <tbody id="tablaRentabilidad"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-4">
+            <div class="panel h-100">
+              <div class="panel-header"><h3><i class="bi bi-pie-chart-fill"></i> Gastos por categoría</h3></div>
+              <div id="gastosCategoria"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 4. COPY ============ -->
+    <section class="vista" id="vista-copy" data-accent="azul">
+      <div class="row g-3">
+        <div class="col-xl-4 col-lg-5">
+          <div class="panel panel-accent">
+            <div class="panel-header"><h3><i class="bi bi-sliders"></i> Configurador</h3><span class="badge-modo" id="copyModo">Offline</span></div>
+            <label class="campo-label">Canal</label>
+            <div class="chip-group" id="copyCanal">
+              <button class="chip active" data-value="instagram"><i class="bi bi-instagram"></i> Instagram Post</button>
+              <button class="chip" data-value="reel"><i class="bi bi-camera-reels"></i> Reel / TikTok</button>
+              <button class="chip" data-value="facebook"><i class="bi bi-facebook"></i> Facebook Ads</button>
+              <button class="chip" data-value="correo"><i class="bi bi-envelope"></i> Correo B2B</button>
+              <button class="chip" data-value="whatsapp"><i class="bi bi-whatsapp"></i> WhatsApp</button>
+            </div>
+            <label class="campo-label">Fórmula persuasiva</label>
+            <div class="segmentado" id="copyFormula">
+              <button class="active" data-value="PAS">PAS <small>Problema · Agitación · Solución</small></button>
+              <button data-value="AIDA">AIDA <small>Atención · Interés · Deseo · Acción</small></button>
+            </div>
+            <label class="campo-label">Ángulo principal</label>
+            <div class="angulo-group" id="copyAngulo">
+              <button class="angulo active" data-value="dolor" data-accent="azul"><i class="bi bi-shield-check"></i><span><b>Seguridad</b>Cero rayones y estiba segura</span></button>
+              <button class="angulo" data-value="cobertura" data-accent="verde"><i class="bi bi-geo-alt"></i><span><b>Cobertura rural</b>Camiones turbo hasta la vereda</span></button>
+              <button class="angulo" data-value="garantia" data-accent="violeta"><i class="bi bi-stopwatch"></i><span><b>Garantía 10%</b>Rastreo + descuento por retraso</span></button>
+            </div>
+            <label class="campo-label" for="copyDetalles">Detalles de la campaña <span class="opcional">(opcional)</span></label>
+            <textarea id="copyDetalles" class="form-control" rows="3" placeholder="Ej. Temporada de diciembre para colchonerías que despachan a Boyacá"></textarea>
+            <div class="aviso-prohibidas d-none" id="copyAvisoDetalles"></div>
+            <button class="btn btn-verde w-100 mt-3" id="btnGenerarCopy"><i class="bi bi-stars"></i> Generar 3 variaciones</button>
+          </div>
+        </div>
+        <div class="col-xl-8 col-lg-7">
+          <div id="copyResultados">
+            <div class="estado-vacio"><i class="bi bi-chat-quote"></i><h4>Tus 3 variaciones aparecerán aquí</h4><p>Elige canal, fórmula y ángulo, y presiona <b>Generar</b>.</p></div>
+          </div>
+          <div class="panel mt-3">
+            <div class="panel-header"><h3><i class="bi bi-bookmark-star-fill"></i> Biblioteca de copys</h3><span class="contador" id="bibliotecaContador">0</span></div>
+            <div id="bibliotecaLista" class="biblioteca-lista"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 5. DISEÑO ============ -->
+    <section class="vista" id="vista-diseno" data-accent="verde">
+      <div class="row g-3">
+        <div class="col-xl-4 col-lg-5">
+          <div class="panel panel-accent">
+            <div class="panel-header"><h3><i class="bi bi-bounding-box"></i> Constructor de pieza</h3></div>
+            <div class="copy-recibido d-none" id="copyRecibido">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <span><i class="bi bi-inbox-fill"></i> Copy recibido del Asistente 01</span>
+                <button class="btn-link-mini" id="btnLimpiarCopyRecibido" aria-label="Quitar copy">&times;</button>
+              </div>
+              <p id="copyRecibidoTexto"></p>
+            </div>
+            <label class="campo-label">Formato</label>
+            <div class="chip-group grid-2" id="disFormato">
+              <button class="chip active" data-value="1:1"><i class="bi bi-square"></i> 1:1 Post</button>
+              <button class="chip" data-value="4:5"><i class="bi bi-phone"></i> 4:5 Flyer</button>
+              <button class="chip" data-value="9:16"><i class="bi bi-phone-vibrate"></i> 9:16 Story</button>
+              <button class="chip" data-value="16:9"><i class="bi bi-display"></i> 16:9 Banner</button>
+            </div>
+            <label class="campo-label">Enfoque (color de acento)</label>
+            <div class="angulo-group compacto" id="disEnfoque">
+              <button class="angulo active" data-value="cuidado" data-accent="azul"><i class="bi bi-shield-check"></i><span><b>Cuidado de muebles</b>Azul #1B4F88</span></button>
+              <button class="angulo" data-value="rural" data-accent="verde"><i class="bi bi-geo-alt"></i><span><b>Cobertura rural</b>Verde #228161</span></button>
+              <button class="angulo" data-value="garantia" data-accent="violeta"><i class="bi bi-stopwatch"></i><span><b>Garantía 10%</b>Violeta #5F3A88</span></button>
+            </div>
+            <label class="campo-label">Fondo base</label>
+            <div class="segmentado tres" id="disFondo">
+              <button class="active" data-value="oscuro">Azul profundo</button>
+              <button data-value="blanco">Blanco</button>
+              <button data-value="gris">Gris claro</button>
+            </div>
+            <label class="campo-label" for="disTitular">Titular <span class="opcional" id="disTitularContador">0/8 palabras</span></label>
+            <input id="disTitular" class="form-control" maxlength="80" value="Tus muebles llegan sin un solo rayón">
+            <label class="campo-label" for="disSubtitulo">Subtítulo</label>
+            <input id="disSubtitulo" class="form-control" maxlength="90" value="Estiba segura y camiones turbo a todo Colombia">
+            <label class="campo-label" for="disCta">Llamado a la acción</label>
+            <input id="disCta" class="form-control" maxlength="30" value="Cotiza por WhatsApp">
+            <div class="form-check form-switch mt-3">
+              <input class="form-check-input" type="checkbox" id="disZonaSegura" checked>
+              <label class="form-check-label" for="disZonaSegura">Mostrar zona segura</label>
+            </div>
+            <button class="btn btn-verde w-100 mt-3" id="btnGenerarPrompt"><i class="bi bi-magic"></i> Generar brief y prompts</button>
+          </div>
+        </div>
+        <div class="col-xl-8 col-lg-7">
+          <div class="panel">
+            <div class="panel-header"><h3><i class="bi bi-eye-fill"></i> Previsualización en vivo</h3><span class="formato-info" id="disFormatoInfo">1080 × 1080 px</span></div>
+            <div class="lienzo-wrapper">
+              <div class="lienzo" id="lienzo" data-formato="1:1" data-fondo="oscuro" data-enfoque="cuidado">
+                <div class="lz-zona-segura"></div>
+                <img class="lz-logo" id="lzLogo" src="assets/img/Logo_Nexcargo_Definitivo.svg" alt="Nexcargo">
+                <div class="lz-texto"><h4 class="lz-titular" id="lzTitular"></h4><p class="lz-subtitulo" id="lzSubtitulo"></p></div>
+                <div class="lz-imagen"><i class="bi bi-truck"></i><span>Zona de imagen IA</span></div>
+                <div class="lz-pie">
+                  <div class="lz-sello"><span class="cifra">10%</span><span>de descuento por retraso</span></div>
+                  <span class="lz-cta" id="lzCta"></span>
+                </div>
+              </div>
+            </div>
+            <div class="paleta-activa" id="paletaActiva"></div>
+            <div class="validaciones" id="disValidaciones"></div>
+          </div>
+          <div id="disResultados" class="mt-3">
+            <div class="estado-vacio"><i class="bi bi-file-earmark-image"></i><h4>Brief de 3 bloques</h4><p>Concepto y jerarquía, prompt en inglés y negative prompt.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 6. COMERCIAL ============ -->
+    <section class="vista" id="vista-comercial" data-accent="violeta">
+      <div class="row g-3">
+        <div class="col-lg-5">
+          <div class="panel panel-accent h-100">
+            <div class="panel-header"><h3><i class="bi bi-person-badge"></i> Cliente</h3></div>
+            <label class="campo-label" for="objPedido">Pedido o tienda</label>
+            <select class="form-select" id="objPedido"></select>
+            <small class="ayuda">El guion se personaliza con el nombre de la tienda y su número de guía.</small>
+            <label class="campo-label mt-3">Objeción o necesidad</label>
+            <div class="d-flex flex-column gap-2" id="objBotones"></div>
+          </div>
+        </div>
+        <div class="col-lg-7">
+          <div class="panel h-100">
+            <div class="panel-header">
+              <h3><i class="bi bi-whatsapp"></i> Respuesta lista para enviar</h3>
+              <div class="segmentado compacto-seg" id="objCanal">
+                <button class="active" data-value="whatsapp">WhatsApp</button>
+                <button data-value="correo">Correo</button>
+              </div>
+            </div>
+            <div class="burbuja-wa" id="objTexto"></div>
+            <div class="d-flex flex-wrap gap-2 mt-3">
+              <button class="btn btn-violeta" id="btnCopiarObj"><i class="bi bi-clipboard"></i> Copiar texto</button>
+              <a class="btn btn-whatsapp d-none" id="btnAbrirWA" target="_blank" rel="noopener"><i class="bi bi-whatsapp"></i> Abrir chat</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 7. CONFIGURACIÓN ============ -->
+    <section class="vista" id="vista-config">
+      <div class="row g-3">
+        <div class="col-lg-7">
+          <div class="panel">
+            <div class="panel-header"><h3><i class="bi bi-plug-fill"></i> Integraciones</h3></div>
+            <form id="formConfig">
+              <h4 class="config-grupo"><i class="bi bi-truck"></i> Pedidos</h4>
+              <label class="campo-label" for="cfgWebhook">WEBHOOK_N8N_PEDIDOS (producción)</label>
+              <input id="cfgWebhook" class="form-control mono" type="url" value="https://mdrsproyect.app.n8n.cloud/webhook/nexcargo-pedidos" readonly>
+              <label class="campo-label" for="cfgSheetsPedidos">GOOGLE_SHEETS_PEDIDOS_URL</label>
+              <input id="cfgSheetsPedidos" class="form-control mono" type="url" placeholder="https://docs.google.com/spreadsheets/d/... (CRM_Pedidos_Nexcargo)">
+
+              <h4 class="config-grupo"><i class="bi bi-safe2"></i> Contabilidad</h4>
+              <label class="campo-label" for="cfgWebhookConta">WEBHOOK_N8N_CONTABILIDAD (producción)</label>
+              <input id="cfgWebhookConta" class="form-control mono" type="url" value="https://mdrsproyect.app.n8n.cloud/webhook/nexcargo-contabilidad" readonly>
+              <label class="campo-label" for="cfgSheetsConta">GOOGLE_SHEETS_CONTABLE_URL</label>
+              <input id="cfgSheetsConta" class="form-control mono" type="url" placeholder="https://docs.google.com/spreadsheets/d/... (Contabilidad_Nexcargo)">
+
+              <h4 class="config-grupo"><i class="bi bi-chat-dots"></i> Canales e IA</h4>
+              <label class="campo-label" for="cfgWhatsapp">WhatsApp comercial <span class="opcional">(opcional)</span></label>
+              <input id="cfgWhatsapp" class="form-control mono" type="tel" placeholder="573001234567">
+              <small class="ayuda">Con indicativo 57. Se usa en el portal del cliente.</small>
+              <div class="row g-2">
+                <div class="col-md-8"><label class="campo-label" for="cfgGemini">GEMINI_API_KEY <span class="opcional">(opcional)</span></label>
+                  <div class="input-group">
+                    <input id="cfgGemini" class="form-control mono" type="password" placeholder="AIza..." autocomplete="off">
+                    <button class="btn btn-outline-secondary" type="button" id="btnVerKey" aria-label="Mostrar clave"><i class="bi bi-eye"></i></button>
+                  </div></div>
+                <div class="col-md-4"><label class="campo-label" for="cfgModelo">Modelo</label>
+                  <input id="cfgModelo" class="form-control mono" value="gemini-2.5-flash"></div>
+              </div>
+              <small class="ayuda">Sin API Key, los generadores usan las plantillas oficiales de Nexcargo.</small>
+
+              <div class="d-flex flex-wrap gap-2 mt-4">
+                <button type="submit" class="btn btn-verde"><i class="bi bi-floppy-fill"></i> Guardar</button>
+                <button type="button" class="btn btn-outline-secondary" id="btnProbarIA"><i class="bi bi-cpu"></i> Probar IA</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="col-lg-5">
+          <div class="panel mb-3" data-accent="profundo">
+            <div class="panel-header"><h3><i class="bi bi-key-fill"></i> ADMIN_PASSWORD</h3></div>
+            <form id="formPassword">
+              <label class="campo-label" for="pwActual">Contraseña actual</label>
+              <input class="form-control" type="password" id="pwActual" autocomplete="current-password" required>
+              <label class="campo-label" for="pwNueva">Nueva contraseña <span class="opcional">(mín. 8 caracteres)</span></label>
+              <input class="form-control" type="password" id="pwNueva" autocomplete="new-password" minlength="8" required>
+              <label class="campo-label" for="pwConfirmar">Confirmar nueva contraseña</label>
+              <input class="form-control" type="password" id="pwConfirmar" autocomplete="new-password" required>
+              <button class="btn btn-profundo w-100 mt-3" type="submit"><i class="bi bi-shield-check"></i> Cambiar contraseña</button>
+              <small class="ayuda" id="pwAviso"></small>
+            </form>
+          </div>
+          <div class="panel mb-3">
+            <div class="panel-header"><h3><i class="bi bi-diagram-3-fill"></i> n8n Cloud · Pedidos y Gmail</h3></div>
+            <ol class="guia-make">
+              <li>En el workflow de pedidos, configura <b>Webhook → Google Sheets (Append Row)</b> en el CRM oficial. Mapea cada columna con <code>{{ $json.body.numeroGuia }}</code>, <code>{{ $json.body.tienda }}</code>, <code>{{ $json.body.email }}</code>, <code>{{ $json.body.whatsapp }}</code>, <code>{{ $json.body.origen }}</code>, <code>{{ $json.body.destino }}</code>, <code>{{ $json.body.ruta }}</code>, <code>{{ $json.body.zona }}</code>, <code>{{ $json.body.mercancia }}</code>, <code>{{ $json.body.medidas }}</code>, <code>{{ $json.body.valorFlete }}</code>, <code>{{ $json.body.fechaPactada }}</code>, <code>{{ $json.body.nombreEtapa }}</code> y <code>{{ $json.body.fechaRegistro }}</code>.</li>
+              <li>Conecta Gmail <b>Send</b> solo al evento <code>nuevo_pedido</code>. En <b>To</b> usa exactamente <code>{{ $('Webhook').item.json.body.email.trim() }}</code>. En <b>Subject</b> usa exactamente <code>🎉 ¡Gracias por tu compra! Tu envío Nexcargo está confirmado · Guía {{ $('Webhook').item.json.body.numeroGuia }}</code>.</li>
+              <li>En Gmail selecciona <b>Email Type: HTML</b>. Diseña el correo con la paleta Nexcargo: <code>#0D2855</code>, <code>#1B4F88</code>, <code>#228161</code> y <code>#5F3A88</code>. Personaliza el contenido usando expresiones de <code>$json.body</code>.</li>
+              <li><details><summary>Plantilla HTML personalizada para Gmail</summary><pre><code>&lt;table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F2F4F7;padding:24px;font-family:Arial,sans-serif"&gt;
+&lt;tr&gt;&lt;td align="center"&gt;
+&lt;table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#FFFFFF;border-radius:12px;overflow:hidden"&gt;
+&lt;tr&gt;&lt;td style="background:#0D2855;padding:28px;color:#FFFFFF"&gt;&lt;strong style="font-size:24px"&gt;Nexcargo&lt;/strong&gt;&lt;br&gt;Tu envío está confirmado&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="padding:28px;color:#243247"&gt;
+&lt;p&gt;Hola {{ $('Webhook').item.json.body.tienda }}, recibimos tu despacho.&lt;/p&gt;
+&lt;p style="color:#1B4F88;font-size:20px"&gt;&lt;strong&gt;Guía {{ $('Webhook').item.json.body.numeroGuia }}&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Ruta:&lt;/strong&gt; {{ $('Webhook').item.json.body.ruta }}&lt;br&gt;
+&lt;strong&gt;Mercancía:&lt;/strong&gt; {{ $('Webhook').item.json.body.mercancia }}&lt;br&gt;
+&lt;strong&gt;Medidas/peso:&lt;/strong&gt; {{ $('Webhook').item.json.body.medidas }}&lt;br&gt;
+&lt;strong&gt;Entrega pactada:&lt;/strong&gt; {{ $('Webhook').item.json.body.fechaPactada }}&lt;/p&gt;
+&lt;p style="background:#228161;color:#FFFFFF;padding:12px;border-radius:6px"&gt;Etapa: {{ $('Webhook').item.json.body.nombreEtapa }}&lt;/p&gt;
+&lt;/td&gt;&lt;/tr&gt;
+&lt;tr&gt;&lt;td style="background:#5F3A88;padding:16px;color:#FFFFFF;text-align:center"&gt;Gracias por confiar tu envío a Nexcargo.&lt;/td&gt;&lt;/tr&gt;
+&lt;/table&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</code></pre></details></li>
+              <li>El workflow de contabilidad usa el webhook de producción correspondiente y registra sus eventos en la hoja Contabilidad. El stepper no debe activar Gmail ni volver a ejecutar el workflow de pedidos.</li>
+              <li>Antes de publicar, guarda ambos workflows, déjalos en <b>Active</b> y elimina cualquier <b>Pinned Data</b> del nodo Webhook. No uses URLs <code>/webhook-test/</code>.</li>
+            </ol>
+          </div>
+          <div class="panel panel-peligro">
+            <div class="panel-header"><h3><i class="bi bi-database-fill-gear"></i> Datos locales</h3></div>
+            <p class="small text-secundario">Los pedidos y la configuración viven en este navegador. Descarga el CSV antes de borrar. Los movimientos contables solo se borran desde el módulo contable desbloqueado.</p>
+            <div class="d-flex flex-wrap gap-2">
+              <button class="btn btn-sm btn-outline-secondary" id="btnLimpiarDatosLocales"><i class="bi bi-arrow-counterclockwise"></i> Iniciar base en limpio</button>
+              <button class="btn btn-sm btn-outline-danger" id="btnBorrarOperacion"><i class="bi bi-trash3"></i> Borrar pedidos y marketing</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- =====================================================================
+     MODO 2: PORTAL PÚBLICO DE RASTREO
+====================================================================== -->
+<div id="portal" class="portal" hidden>
+  <div class="portal-barra-interna">
+    <span><i class="bi bi-eye"></i> Vista previa del portal público</span>
+    <button class="btn btn-sm btn-light" data-modo-btn="hub"><i class="bi bi-arrow-left"></i> Volver a la plataforma</button>
+  </div>
+  <nav class="portal-nav">
+    <div class="container d-flex justify-content-between align-items-center">
+      <img src="assets/img/nexcargo-sin fondo.png" alt="Nexcargo" class="portal-logo">
+      <span class="sello-garantia sello-sm"><span class="cifra">10%</span> de descuento por retraso</span>
+    </div>
+  </nav>
+  <header class="portal-hero">
+    <div class="container text-center">
+      <h1>Rastrea tu despacho</h1>
+      <p class="portal-sub">Ingresa tu número de guía para ver en qué etapa va tu mercancía.</p>
+      <form id="formPortal" class="portal-buscador mx-auto">
+        <input class="form-control guia-input" id="portalGuia" placeholder="NX-2026-001" autocomplete="off" aria-label="Número de guía">
+        <button class="btn btn-verde" type="submit"><i class="bi bi-search"></i> Rastrear</button>
+      </form>
+    </div>
+  </header>
+  <section class="container pb-5"><div id="portalResultado" class="portal-resultado mx-auto"></div></section>
+  <footer class="portal-footer">
+    <div class="container text-center">
+      <img src="assets/img/Logo_Nexcargo_Definitivo.svg" alt="Nexcargo" class="logo-blanco portal-footer-logo">
+      <p class="mb-1">Transporte de paquetería grande en camiones turbo · Cobertura nacional y rural</p>
+      <small>Garantía de cumplimiento: 10% de descuento en el flete por retraso (no aplica en paros).</small>
+    </div>
+  </footer>
+</div>
+
+<!-- ===== Modal de confirmación ===== -->
+<div class="modal fade" id="modalConfirmar" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title" id="modalConfirmarTitulo">Confirmar</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button></div>
+    <div class="modal-body" id="modalConfirmarCuerpo"></div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+      <button type="button" class="btn btn-danger" id="modalConfirmarOk">Confirmar</button>
+    </div>
+  </div></div>
+</div>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastZona"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
